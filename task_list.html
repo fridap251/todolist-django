@@ -1,0 +1,138 @@
+{% extends 'tasks/base.html' %}
+
+{% block title %}My Tasks{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        text-align: center;
+    }
+    
+    .stat-card h3 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .task-item {
+        background: white;
+        border: 2px solid #eee;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .task-item.completed {
+        opacity: 0.6;
+        background: #f8f9fa;
+    }
+    
+    .task-checkbox {
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+    }
+    
+    .task-content {
+        flex: 1;
+    }
+    
+    .task-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+    
+    .task-item.completed .task-title {
+        text-decoration: line-through;
+    }
+    
+    .badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        margin-right: 0.5rem;
+    }
+    
+    .badge-high { background: #e74c3c; color: white; }
+    .badge-medium { background: #f39c12; color: white; }
+    .badge-low { background: #95a5a6; color: white; }
+    
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="stats">
+    <div class="stat-card">
+        <h3>{{ total_tasks }}</h3>
+        <p>Total Tasks</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ pending_tasks }}</h3>
+        <p>Pending</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ completed_tasks }}</h3>
+        <p>Completed</p>
+    </div>
+</div>
+
+<div style="margin-bottom: 1rem;">
+    <a href="{% url 'task_create' %}" class="btn btn-success">+ Add New Task</a>
+    <a href="{% url 'category_list' %}" class="btn btn-primary">Manage Categories</a>
+</div>
+
+{% if tasks %}
+    {% for task in tasks %}
+    <div class="task-item {% if task.completed %}completed{% endif %}">
+        <form action="{% url 'task_toggle' task.pk %}" method="post" style="margin: 0;">
+            {% csrf_token %}
+            <input type="checkbox" class="task-checkbox" {% if task.completed %}checked{% endif %} onchange="this.form.submit()">
+        </form>
+        
+        <div class="task-content">
+            <div class="task-title">{{ task.title }}</div>
+            {% if task.description %}
+            <p style="color: #666; margin: 0.5rem 0;">{{ task.description }}</p>
+            {% endif %}
+            <div style="margin-top: 0.5rem;">
+                <span class="badge badge-{{ task.priority }}">{{ task.get_priority_display }}</span>
+                {% if task.category %}
+                <span class="badge" style="background: {{ task.category.color }}; color: white;">{{ task.category.name }}</span>
+                {% endif %}
+                {% if task.due_date %}
+                <span style="color: #666;">📅 {{ task.due_date }}</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div>
+            <a href="{% url 'task_update' task.pk %}" class="btn btn-primary btn-sm">Edit</a>
+            <a href="{% url 'task_delete' task.pk %}" class="btn btn-danger btn-sm">Delete</a>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div style="text-align: center; padding: 3rem;">
+        <h2>No tasks yet!</h2>
+        <p>Create your first task to get started.</p>
+        <a href="{% url 'task_create' %}" class="btn btn-success">+ Add Task</a>
+    </div>
+{% endif %}
+{% endblock %} 
