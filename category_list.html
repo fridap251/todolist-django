@@ -1,0 +1,25 @@
+{% extends 'tasks/base.html' %}
+
+{% block title %}Categories{% endblock %}
+
+{% block content %}
+<h2>Categories</h2>
+<a href="{% url 'category_create' %}" class="btn btn-success" style="margin-bottom: 1rem;">+ Add Category</a>
+<a href="{% url 'task_list' %}" class="btn btn-secondary" style="margin-bottom: 1rem;">Back to Tasks</a>
+
+{% if categories %}
+<div style="display: grid; gap: 1rem;">
+    {% for category in categories %}
+    <div style="background: white; border: 2px solid #eee; border-radius: 10px; padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 30px; height: 30px; background: {{ category.color }}; border-radius: 5px;"></div>
+            <strong>{{ category.name }}</strong>
+        </div>
+        <a href="{% url 'category_delete' category.pk %}" class="btn btn-danger btn-sm">Delete</a>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p>No categories yet. Create one to organize your tasks!</p>
+{% endif %}
+{% endblock %} 
